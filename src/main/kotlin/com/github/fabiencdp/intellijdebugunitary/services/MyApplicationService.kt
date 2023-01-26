@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.template.services
+package com.github.fabiencdp.intellijdebugunitary.services
 
-import org.jetbrains.plugins.template.MyBundle
+import com.github.fabiencdp.intellijdebugunitary.MyBundle
 
 class MyApplicationService {
 
