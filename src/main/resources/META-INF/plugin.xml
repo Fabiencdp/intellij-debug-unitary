@@ -1,18 +1,33 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.fabiencdp.intellijdebugunitary</id>
-    <name>IntelliJ Platform Plugin intellij-debug-unitary</name>
+    <name>debug-unitary</name>
     <vendor>fabiencdp</vendor>
-
     <depends>com.intellij.modules.platform</depends>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.fabiencdp.intellijdebugunitary.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.fabiencdp.intellijdebugunitary.services.MyProjectService"/>
-    </extensions>
+    <depends>JavaScript</depends>
 
-    <applicationListeners>
-        <listener class="com.github.fabiencdp.intellijdebugunitary.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
+    <extensions defaultExtensionNs="com.intellij">
+        <javascript.webTypes source="alpine.web-types.json" enableByDefault="true"/>
+
+        <localInspection language="JavaScript"
+                         displayName="Inspection basics"
+                         groupName="Example inspections"
+                         groupPath="SDK"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="inspection.DemoCodeInspection"/>
+
+<!--        <globalInspection language="JavaScript" implementationClass="inspection.DemoGlobalInspection"/>-->
+    </extensions>
+    <actions>
+        <action id="inspection.DemoAction" class="inspection.DemoAction" text="Debug method"
+                description="Add this method to the scratch debug">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+            <keyboard-shortcut
+                    keymap="$default"
+                    first-keystroke="control alt A"
+                    second-keystroke="C"/>
+        </action>
+    </actions>
 </idea-plugin>

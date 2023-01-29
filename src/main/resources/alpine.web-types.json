@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../schema.json",
+  "name": "Alpine",
+  "version": "1.0.0",
+  "contributions": {
+    "html": {
+      "attributes": [
+        {
+          "name": "x-data"
+        },
+        {
+          "name": "x-bind",
+          "pattern": {
+            "items": [
+              {
+                "path": "/html/attributes",
+                "includeVirtual": false
+              }
+            ],
+            "template": [
+              "x-bind:",
+              "#item"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
