@@ -48,18 +48,20 @@ public class DemoInspectionVisitor extends PsiElementVisitor {
 //    PsiElement type = element.getParent().getElementType().getDebugName();
     if (parent instanceof JSFunctionImpl) {
       String functionContent = parent.getText();
-      System.out.println(parent.getText());
-      Matcher m = pattern.matcher(child.getText());
 
-      while (m.find()) {
-        System.out.println("pater = " + m.pattern()) ;
-        System.out.println("groupe = " + m.group()) ;
 
-        Optional<String> result = Arrays.stream(this.matches).parallel()
-                .filter(value -> value.equals(m.group())).findAny();
-
-        System.out.println(result);
-      }
+//      System.out.println(parent.getText());
+//      Matcher m = pattern.matcher(child.getText());
+//
+//      while (m.find()) {
+//        System.out.println("pater = " + m.pattern()) ;
+//        System.out.println("groupe = " + m.group()) ;
+//
+//        Optional<String> result = Arrays.stream(this.matches).parallel()
+//                .filter(value -> value.equals(m.group())).findAny();
+//
+//        System.out.println(result);
+//      }
     }
 
 //    if (element.getContext() == "XmlToken.XML_DATA_CHARACTERS" && element.textMatches("test")) {

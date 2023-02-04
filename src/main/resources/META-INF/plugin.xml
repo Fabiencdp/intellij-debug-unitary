@@ -18,12 +18,16 @@
                          level="WARNING"
                          implementationClass="inspection.DemoCodeInspection"/>
 
+        <configurationType implementation="inspection.DemoRunConfigurationType"/>
+
+        <codeInsight.lineMarkerProvider language="JavaScript" implementationClass="inspection.DebuggerLineMarkerProvider" />
 <!--        <globalInspection language="JavaScript" implementationClass="inspection.DemoGlobalInspection"/>-->
     </extensions>
+
     <actions>
         <action id="inspection.DemoAction" class="inspection.DemoAction" text="Debug method"
                 description="Add this method to the scratch debug">
-            <add-to-group group-id="ToolsMenu" anchor="first"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
             <keyboard-shortcut
                     keymap="$default"
                     first-keystroke="control alt A"
