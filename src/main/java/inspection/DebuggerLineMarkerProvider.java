@@ -1,13 +1,19 @@
 package inspection;
 
+import com.google.common.io.Resources;
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.scratch.ScratchRootType;
 import com.intellij.lang.javascript.JSTokenTypes;
 import com.intellij.lang.javascript.psi.impl.JSFunctionImpl;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.util.Function;
@@ -17,33 +23,38 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 
 public class DebuggerLineMarkerProvider implements LineMarkerProvider {
     @Override
     public LineMarkerInfo<?> getLineMarkerInfo(@NotNull PsiElement element) {
+//        if (element instanceof PsiIdentifier &&
+//                (parent = element.getParent()) instanceof PsiMethod &&
+//                ((PsiMethod) parent).getMethodIdentifier() == element)
+//            ) { // aha, we are at method name
+//            return new LineMarkerInfo(element, element.getTextRange(), icon, null,null, alignment);
+//        }
+
         if (
-                !(element instanceof LeafPsiElement) ||
-                ((LeafPsiElement) element).getElementType() != JSTokenTypes.FUNCTION_KEYWORD ||
-                !((LeafPsiElement) element).canNavigate()
+            !(element instanceof LeafPsiElement) ||
+            ((LeafPsiElement) element).getElementType() != JSTokenTypes.FUNCTION_KEYWORD ||
+            !((LeafPsiElement) element).canNavigate()
         )
         {
             return null;
         }
 
-
-        GutterIconNavigationHandler<PsiElement> navHandler = new GutterIconNavigationHandler<PsiElement>() {
-            @Override
-            public void navigate(MouseEvent e, PsiElement elt) {
-                System.out.println("don't click on me");
-            }
-        };
-
+        System.out.println(element.getClass().getName());
 
         return new RunLineMarkerInfo(
                 (LeafPsiElement) element,
                 AllIcons.Actions.Execute,
                 createActionGroup(element),
-                navHandler,
+                createNavigationHandler(element),
                 createToolTipProvider(element)
         );
     }
@@ -55,11 +66,36 @@ public class DebuggerLineMarkerProvider implements LineMarkerProvider {
 
     public DefaultActionGroup createActionGroup(PsiElement element) {
         DefaultActionGroup group = new DefaultActionGroup();
-//        group.addAction("dq");
+        // group.addAction("dq");
         return group;
+    }
+
+    private GutterIconNavigationHandler<PsiElement> createNavigationHandler(PsiElement element) {
+        return new GutterIconNavigationHandler<PsiElement>() {
+            @Override
+            public void navigate(MouseEvent event, PsiElement element) {
+                Project currentProject = element.getProject();
+
+                String extension = element.getContainingFile().getFileType().getDefaultExtension();
+                String fileName = ((JSFunctionImpl) element).getName().concat("." + extension);
+
+                VirtualFile file = ScratchRootType
+                        .getInstance()
+                        .createScratchFile(currentProject, fileName, element.getLanguage(), element.getText());
+
+                FileEditorManager.getInstance(currentProject).openTextEditor(
+                        new OpenFileDescriptor(currentProject, file),
+                        true // request focus to editor
+                );
+            }
+        };
     }
 }
 
+
+/**
+ * RunLineMarkerInfo
+ */
 class RunLineMarkerInfo extends LineMarkerInfo {
     private final ActionGroup actionGroup;
 
@@ -72,8 +108,7 @@ class RunLineMarkerInfo extends LineMarkerInfo {
             @NotNull GutterIconNavigationHandler navHandler,
             @Nullable Function<LeafPsiElement, String> tooltipProvider
     ) {
-        // TODO: test navHandler
-        super(element.getParent(), element.getParent().getTextRange(), icon, tooltipProvider, null, GutterIconRenderer.Alignment.RIGHT);
+        super(element.getParent(), element.getParent().getTextRange(), icon, tooltipProvider, navHandler, GutterIconRenderer.Alignment.RIGHT);
         this.actionGroup = actionGroup;
         this.element = element;
     }
@@ -81,12 +116,12 @@ class RunLineMarkerInfo extends LineMarkerInfo {
     @Override
     public GutterIconRenderer createGutterRenderer() {
         return new LineMarkerGutterIconRenderer<>(this) {
-            @Override
-            public AnAction getClickAction() {
-                DemoAction action = new DemoAction();
-                action.setElement((JSFunctionImpl) (element).getParent());
-                return action;
-            }
+            // @Override
+            // public AnAction getClickAction() {
+            //     DemoAction action = new DemoAction();
+            //     action.setElement((JSFunctionImpl) (element).getParent());
+            //     return action;
+            // }
 
             @Override
             public boolean isNavigateAction() {

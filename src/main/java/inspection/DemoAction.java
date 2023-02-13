@@ -15,9 +15,9 @@ import org.jetbrains.annotations.NotNull;
 public class DemoAction extends AnAction {
     JSFunctionImpl element;
 
-    public void setElement(JSFunctionImpl element) {
+     public void setElement(JSFunctionImpl element) {
         this.element = element;
-    }
+     }
 
     @Override
     public void update(@NotNull AnActionEvent event) {
